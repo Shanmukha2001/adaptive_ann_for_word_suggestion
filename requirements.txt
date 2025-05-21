@@ -1,0 +1,7 @@
+flask
+torch
+transformers
+PyPDF2
+sentence-transformers
+numpy
+nltk

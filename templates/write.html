@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Writing Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f1f3f4;
+      color: #202124;
+    }
+
+    .header {
+      background: #fff;
+      padding: 16px 24px;
+      font-weight: 600;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      font-size: 18px;
+    }
+
+    .container {
+      padding: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .info {
+      color: #5f6368;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    #editor {
+      width: 100%;
+      height: 500px;
+      background: white;
+      border: none;
+      border-radius: 8px;
+      padding: 20px;
+      font-size: 16px;
+      line-height: 1.6;
+      outline: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+
+    .suggestion-container {
+      margin-top: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .suggestion-btn {
+      background-color: #e8f0fe;
+      border: 1px solid #d2e3fc;
+      border-radius: 16px;
+      padding: 6px 12px;
+      font-size: 14px;
+      color: #1a73e8;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .suggestion-btn:hover {
+      background-color: #cfe3fd;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 16px;
+      }
+      #editor {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">📄 Smart Writing Assistant</div>
+  <div class="container">
+    <div class="info">Type and press <strong>Space</strong> to get suggestions. Click a suggestion to insert it.</div>
+    <div id="editor" contenteditable="true"></div>
+    <div class="suggestion-container" id="suggestions">
+      <em style="color: #888;">Suggestions will appear here</em>
+    </div>
+  </div>
+
+  <script>
+    const editor = document.getElementById("editor");
+    const suggestionsContainer = document.getElementById("suggestions");
+    let lastText = "";
+
+    function getEditorText() {
+      return editor.textContent.trim();
+    }
+
+    async function fetchSuggestions(text) {
+      try {
+        const response = await fetch(`/suggest?text=${encodeURIComponent(text)}`);
+        return response.ok ? await response.json() : [];
+      } catch (error) {
+        console.error("Error:", error);
+        return [];
+      }
+    }
+
+    function showSuggestions(suggestions) {
+      suggestionsContainer.innerHTML = "";
+      if (suggestions.length === 0) {
+        suggestionsContainer.innerHTML = "<em style='color:#888;'>No suggestions available</em>";
+        return;
+      }
+
+      suggestions.forEach(suggestion => {
+        const btn = document.createElement('button');
+        btn.className = 'suggestion-btn';
+        btn.textContent = suggestion;
+        btn.onclick = () => {
+          const current = getEditorText();
+          editor.textContent = current + (current ? " " : "") + suggestion + " ";
+          placeCursorAtEnd();
+          showSuggestions([]);
+        };
+        suggestionsContainer.appendChild(btn);
+      });
+    }
+
+    function placeCursorAtEnd() {
+      const range = document.createRange();
+      const selection = window.getSelection();
+      range.selectNodeContents(editor);
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    editor.addEventListener("keyup", async (e) => {
+      const currentText = getEditorText();
+      if (currentText !== lastText && e.key === " ") {
+        lastText = currentText;
+        const suggestions = await fetchSuggestions(currentText);
+        showSuggestions(suggestions);
+      }
+    });
+
+    editor.focus();
+  </script>
+</body>
+</html>
