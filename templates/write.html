@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Smart Writing Assistant</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     * {
       box-sizing: border-box;
@@ -11,16 +11,20 @@
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
-      background-color: #f1f3f4;
-      color: #202124;
+      background-color: #121212;
+      color: #e0e0e0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     .header {
-      background: #fff;
+      background: #1f1f1f;
       padding: 16px 24px;
       font-weight: 600;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.9);
       font-size: 18px;
+      color: #81c784; /* subtle green */
+      user-select: none;
     }
 
     .container {
@@ -30,7 +34,7 @@
     }
 
     .info {
-      color: #5f6368;
+      color: #a0a0a0;
       font-size: 14px;
       margin-bottom: 10px;
     }
@@ -38,15 +42,19 @@
     #editor {
       width: 100%;
       height: 500px;
-      background: white;
+      background: #1e1e1e;
       border: none;
       border-radius: 8px;
       padding: 20px;
       font-size: 16px;
       line-height: 1.6;
       outline: none;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 0 8px rgba(130, 170, 130, 0.6);
+      color: #e0e0e0;
       overflow-y: auto;
+      caret-color: #81c784;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
     .suggestion-container {
@@ -57,18 +65,24 @@
     }
 
     .suggestion-btn {
-      background-color: #e8f0fe;
-      border: 1px solid #d2e3fc;
+      background-color: #2a2a2a;
+      border: 1px solid #4caf50;
       border-radius: 16px;
       padding: 6px 12px;
       font-size: 14px;
-      color: #1a73e8;
+      color: #81c784;
       cursor: pointer;
       transition: background 0.2s ease;
+      user-select: none;
     }
 
     .suggestion-btn:hover {
-      background-color: #cfe3fd;
+      background-color: #4caf50;
+      color: #121212;
+    }
+
+    em {
+      color: #666;
     }
 
     @media (max-width: 600px) {
@@ -85,9 +99,9 @@
   <div class="header">📄 Smart Writing Assistant</div>
   <div class="container">
     <div class="info">Type and press <strong>Space</strong> to get suggestions. Click a suggestion to insert it.</div>
-    <div id="editor" contenteditable="true"></div>
+    <div id="editor" contenteditable="true" spellcheck="false"></div>
     <div class="suggestion-container" id="suggestions">
-      <em style="color: #888;">Suggestions will appear here</em>
+      <em>Suggestions will appear here</em>
     </div>
   </div>
 
@@ -113,7 +127,7 @@
     function showSuggestions(suggestions) {
       suggestionsContainer.innerHTML = "";
       if (suggestions.length === 0) {
-        suggestionsContainer.innerHTML = "<em style='color:#888;'>No suggestions available</em>";
+        suggestionsContainer.innerHTML = "<em>No suggestions available</em>";
         return;
       }
 
@@ -126,6 +140,7 @@
           editor.textContent = current + (current ? " " : "") + suggestion + " ";
           placeCursorAtEnd();
           showSuggestions([]);
+          editor.focus();
         };
         suggestionsContainer.appendChild(btn);
       });
