@@ -98,6 +98,7 @@
 <body>
   <div class="header">📄 Smart Writing Assistant</div>
   <div class="container">
+    <div id="training-status" style="margin-top: 20px; color: #81c784;"></div>
     <div class="info">Type and press <strong>Space</strong> to get suggestions. Click a suggestion to insert it.</div>
     <div id="editor" contenteditable="true" spellcheck="false"></div>
     <div class="suggestion-container" id="suggestions">
@@ -109,6 +110,35 @@
     const editor = document.getElementById("editor");
     const suggestionsContainer = document.getElementById("suggestions");
     let lastText = "";
+
+    function checkTrainingStatus() {
+    fetch('/training_status')
+      .then(response => response.json())
+      .then(data => {
+        if (data.redirect) {
+          window.location.href = '/write';
+        } else {
+          // Update status display (you'll need to add this element)
+          const statusElement = document.getElementById('training-status');
+          if (statusElement) {
+            statusElement.textContent = data.status;
+            
+            // Display additional details if available
+            if (data.currentEpoch) {
+              statusElement.textContent += ` | Epoch: ${data.currentEpoch}`;
+            }
+            if (data.currentLoss) {
+              statusElement.textContent += ` | Loss: ${data.currentLoss.toFixed(4)}`;
+            }
+          }
+          
+          // Check again in 2 seconds
+          setTimeout(checkTrainingStatus, 2000);
+        }
+      });
+  }
+
+  window.addEventListener('load', checkTrainingStatus);
 
     function getEditorText() {
       return editor.textContent.trim();
